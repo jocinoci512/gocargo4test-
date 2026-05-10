@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Quote {
+  id               String   @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  pickupAddress    String
+  deliveryAddress  String
+  vehicleYear      String
+  vehicleMake      String
+  vehicleModel     String
+  runningCondition String   @default("Yes")
+  transportType    String   @default("Open")
+  pickupDate       String
+  notes            String   @default("")
+  photos           String   @default("[]")
+  status           String   @default("pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Shipment {
+  id             String          @id @default(cuid())
+  trackingNumber String          @unique
+  quoteId        String?
+  vehicleInfo    String
+  origin         String
+  destination    String
+  currentLat     Float           @default(0)
+  currentLng     Float           @default(0)
+  originLat      Float           @default(0)
+  originLng      Float           @default(0)
+  destLat        Float           @default(0)
+  destLng        Float           @default(0)
+  routeCoords    String          @default("[]")
+  status         String          @default("picked_up")
+  eta            String?
+  driverNotes    String          @default("")
+  photos         String          @default("[]")
+  customerId     String?
+  customerName   String          @default("")
+  customerEmail  String          @default("")
+  customerPhone  String          @default("")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  events         TrackingEvent[]
+}
+
+model TrackingEvent {
+  id         String   @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  status     String
+  note       String   @default("")
+  lat        Float    @default(0)
+  lng        Float    @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model BlogPost {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  content    String
+  excerpt    String   @default("")
+  coverImage String   @default("")
+  metaTitle  String   @default("")
+  metaDesc   String   @default("")
+  published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Testimonial {
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @default("")
+  rating         Int       @default(5)
+  body           String
+  verified       Boolean   @default(false)
+  published      Boolean   @default(false)
+  status         String    @default("pending")
+  adminReply     String    @default("")
+  adminReplyAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String   @default("")
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  adminEmail String
+  action     String
+  meta       String   @default("{}")
+  createdAt  DateTime @default(now())
+}
